@@ -2,34 +2,29 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_USERNAME = 'hishamijaz22'
-        DOCKER_PASSWORD = 'hisham123'
+        DOCKER_USERNAME = credentials('docker-hub-credentials').username
+        DOCKER_PASSWORD = credentials('docker-hub-credentials').password
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from the repository
                 git 'https://github.com/hishamijaz22/i202652_i200951.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // Build the Docker image
-                sh 'docker build -t my-app .'
+                bat 'docker build -t my-app .'
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                // Log in to Docker Hub
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'hishamijaz22', passwordVariable: 'hisham123')]) {
-                    sh 'docker login -u $hishamijaz22 -p $hisham123'
+                script {
+                    bat "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    bat 'docker push my-app'
                 }
-
-                // Push the Docker image to Docker Hub
-                sh 'my-app'
             }
         }
     }
