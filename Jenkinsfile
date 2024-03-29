@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_USERNAME = credentials('docker-hub-credentials').username
+        DOCKER_PASSWORD = credentials('docker-hub-credentials').password
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -16,8 +21,8 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    bat 'docker login -u %hishamijaz22% -p %hisham123%'
+                script {
+                    bat "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
                     bat 'docker push my-app'
                 }
             }
